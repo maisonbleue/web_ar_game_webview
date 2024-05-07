@@ -1,0 +1,31 @@
+{
+    "name": "Web AR Game",
+    "version": "1.0.0",
+    "description": "",
+    "engines": {
+        "node": "14"
+    },
+    "scripts": {
+        "postinstall": "cd serve && npm install",
+        "start": "webpack --mode=development --watch",
+        "serve": "./serve/bin/serve -d ./public -p 5555 -h -r",
+        "https": "http-server -S -C ~/.cert/cert.pem -K ~/.cert/key.pem -p 5555",
+        "serve.bat": "call ./serve/bin/serve.bat -d public -p 5555 -h -r",
+        "build": "webpack"
+    },
+    "devDependencies": {
+        "delegate": "^3.2.0",
+        "webpack": "^5.58.2",
+        "webpack-cli": "^4.9.0",
+        "webpack-dev-server": "^4.3.1"
+    },
+    "dependencies": {
+        "8gui": "^1.1.2",
+        "aframe": "^1.4.1",
+        "aframe-extras": "^7.0.0",
+        "aframe-template-component": "^3.2.1",
+        "animejs": "^3.2.1",
+        "dat.gui": "^0.7.9",
+        "three": "^0.147.0"
+    }
+}

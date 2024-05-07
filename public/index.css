@@ -1,0 +1,261 @@
+@font-face {
+    font-family: 'SourceSansPro-Semibold';
+    src: url('./assets/fonts/SourceSansPro-Semibold.otf');
+}
+
+html,
+body {
+    margin: 0;
+    overflow: hidden;
+}
+
+#ref {
+    position: absolute;
+    height: 100%;
+    z-index: 3;
+    opacity: 50%;
+    pointer-events: none;
+}
+
+.tutorial-wrapper {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(white, #0671e6);
+}
+
+#tutorial-intro {
+    z-index: 800;
+}
+
+#canvas-wrapper {
+    position: absolute;
+    width: 100%;
+    height: 62%;
+    z-index: 2;
+}
+
+#instructions-wrapper {
+    position: absolute;
+    width: 100%;
+    height: 40%;
+    z-index: 2;
+    bottom: 10vw;
+}
+
+#step-wrapper {
+    height: 13vw;
+    display: flex;
+    align-items: center;
+}
+
+#bubble-info-wrapper {
+    height: 55%;
+    margin-right: 10%;
+    margin-left: 10%;
+}
+
+#skip-button {
+    background-color: transparent;
+    border: none;
+    color: white;
+    position: absolute;
+    bottom: -3vw;
+    z-index: 10;
+    font-size: 4.7vw;
+    right: 8.4vw;
+    font-family: 'SourceSansPro-Semibold';
+}
+
+#bubble {
+    /* width: 62vw; */
+    background-color: white;
+    height: auto;
+    margin-top: 0;
+    border-radius: 3vw;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    /* padding: 9vw; */
+}
+
+#bubble-text {
+    /* position: absolute; */
+    font-size: 12px;
+    /* margin-top: -3vw; */
+    color: #0671e6;
+    width: 80%;
+    font-family: 'SourceSansPro-Semibold';
+    margin-bottom: 5px;
+}
+
+#next-button {
+    /* position: relative; */
+    background-color: transparent;
+    border: none;
+    color: #0671e6;
+    z-index: 10;
+    font-size: 4vw;
+    left: 30vw;
+    bottom: -15vw;
+    margin: 0 10px 10px 0;
+    align-self: end;
+}
+
+#step-text {
+    margin: 0;
+    margin-top: 3vw;
+    margin-left: 10vw;
+    color: white;
+    font-size: 14px;
+    font-family: 'SourceSansPro-Semibold';
+}
+
+#mascotte {
+    position: absolute;
+    width: 50vw;
+    margin-top: 16vw;
+    margin-left: -62vw;
+}
+
+#score-wrapper {
+    position: absolute;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    width: 100%;
+    bottom: 25px;
+    margin: 0;
+    margin-bottom: 0px;
+    margin-bottom: 2vw;
+    transform: translateX(100%);
+}
+
+#time-hint {
+    width: 33vw;
+    margin-bottom: 4vw;
+    margin-right: 32vw;
+    font-family: 'SourceSansPro-Semibold';
+    filter: drop-shadow(2px 1px 10px #FFEFA3);
+    font-size: 30px;
+    color: white;
+}
+
+#score-ui {
+    width: 79vw;
+}
+
+#scene2d {
+    font-family: 'SourceSansPro-Semibold';
+}
+
+.ring-ui {
+    position: absolute;
+    width: 10%;
+    right: 38%;
+    height: auto;
+    max-width: 50px;
+    top: 26%;
+    font-size: 8vw;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+
+}
+
+.overlay-container {
+    position: absolute;
+    pointer-events: none;
+    width: 100%;
+    height: auto;
+    display: flex;
+    justify-content: end;
+    z-index: 999;
+}
+
+.overlay-container.bottom {
+    bottom: 24px;
+}
+
+
+
+.overlay-container > img {
+    width: 125px;
+    margin: 20px 20px 0 0;
+}
+
+#end-screen {
+    background: linear-gradient(0deg, #FFE195 19.15%, #FFF 88.3%);
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: 999;
+    display: none;
+}
+
+#end-screen-img {
+    position: absolute;
+    width: 100%;
+    height: auto;
+}
+
+#replay-button-container {
+    position: absolute;
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+    bottom: 20%;
+}
+
+#replay-button {
+    border-radius: 8px;
+    background: #005DB1;
+    color: #FFF;
+    font-family: 'SourceSansPro-Semibold';
+    font-size: 7vw;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+    text-transform: uppercase;
+    height: 18vw;
+    width: 85vw;
+    border: none;
+}
+
+#replay-button:not(:active) {
+    /* now keep red background for 1s */
+    transform: scale(1);
+}
+
+#replay-button:active {
+    transform: scale(1.05);
+}
+
+#end-text-container {
+    position: absolute;
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    top: 15%;
+    color: #254F9B;
+    font-family: 'SourceSansPro-Semibold';
+    font-size: 10vw;
+    font-style: normal;
+    font-weight: 900;
+    line-height: normal;
+    text-transform: uppercase;
+}
+
+#end-text-container > p {
+    margin: 0;
+}
+
+.small-text {
+    text-transform: lowercase;
+}

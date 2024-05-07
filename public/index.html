@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Jeu - JO 2024</title>
+    <meta name="description" content="3D Web Experience">
+
+    <link href="index.css" rel="stylesheet">
+    <script src="./packed.js"></script>
+    <style>
+      #debugDisplay {
+          border: 1px solid black;
+          padding: 10px;
+          margin: 10px;
+          height: 150px;
+          overflow: auto;
+      }
+
+      #debugViewContainer {
+        z-index: 999;
+        position: absolute;
+        width: 100%;
+        height: 30%;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="partners-logos" class="overlay-container">
+      <img src="./assets/icon_top_right.png" alt="logos">
+    </div>
+    <div id="end-screen">
+      <img id="end-screen-img" src="./assets/background_result.png" alt="end-screen">
+      <div id="end-text-container">
+        <p>¡ENHORABUENA!</p>
+        <p class="small-text"><span id="result-score">350</span> Puntos</p>
+      </div>
+      <div id="replay-button-container">
+        <button id="replay-button" onclick="document.restartGame()">Volver a jugar</button>
+      </div>
+    </div>
+    <div id="tutorial-wrapper" style="z-index: 1;" class="tutorial-wrapper">
+      <!-- <img id="ref" src="./assets/step1.pn g"> -->
+      <div id="timerdiv" style="pointer-events: none; display: none;">
+      </div>
+      <div id="tutorial-intro" class="tutorial-wrapper">
+        <img src="./assets/tutorial-intro-store.png" style="left:50%; position:absolute; transform:translate(-50%,-90%); width: 90%; height: auto; top:50%; max-height: 55%; ">
+        <div style='position: absolute; width: 80%; left: 10%; top:57.5%; height: 17.5%; text-align: center; color: white; font-size: 2.5vh; font-family: "SourceSansPro-Semibold";'>
+          Juega donde tu quieras pero, ¡Si juegas en nuestros Hiper conseguirás una experiencia aún más emocionante con increíbles funciones adicionales!
+        </div>
+        <div style='position:absolute; cursor: pointer; top:80%; left:20%; width:60%; height :8%; font-family: "SourceSansPro-Semibold"; display:flex; align-items:center; justify-content:center; background-color: #005DB1; border-radius: 10px; color:white; font-size:8vw;'  onclick="
+            document.getElementById('tutorial-intro').style.display='none';
+            document.getElementById('instructions-wrapper').style.display='block';
+          ">
+          TUTORIAL
+        </div>
+      </div>
+      <div id="canvas-wrapper">
+
+        <div id="score-wrapper">
+          <p id="time-hint" src="./assets/3sec_placeholder.png">+3 SEG</p>
+          <img id="score-ui" src="./assets/score_placeholder.png">
+        </div>
+
+        <a-scene 
+          embedded
+          style="position: absolute; z-index:4;"
+          id="preview-scene"
+          renderer="webgl2: true; alpha:true;"
+          skip-on-replay
+          device-orientation-permission-ui="enabled: false;"
+          vr-mode-ui="enabled: false">
+
+          <a-assets>
+            <img id="ringArgentSurfaceColorPNG" src="./assets/ring_textures/RING_ARGENTSurface_Color.png">
+            <img id="ringBronzeSurfaceColorPNG" src="./assets/ring_textures/RING_BRONZESurface_Color.png">
+            <img id="ringGoldSurfaceColorPNG" src="./assets/ring_textures/RING_GOLDSurface_Color.png">
+            <img id="ringSpecialSurfaceColorPNG" src="./assets/ring_textures/RING_SPECIALSurface_Color.png">
+            <a-asset-item id="ring" src="./assets/RING.glb"></a-asset-item>
+
+            <img id="waveBronzeImage" src="./assets/wave_bronze.png">
+            <img id="waveGoldImage" src="./assets/wave_gold.png">
+            <img id="waveGrayImage" src="./assets/wave_gray.png">
+            <img id="waveWhiteImage" src="./assets/wave_white.png">
+            <img id="points10PNG" src="./assets/10_placeholder.png">
+            <img id="points20PNG" src="./assets/20_placeholder.png">
+            <img id="points30PNG" src="./assets/30_placeholder.png">
+
+            <!-- Ball Assets source -->
+            <a-asset-item id="arcGLB" src="./assets/balls/Arc.glb"></a-asset-item>
+            <a-asset-item id="flecheGLB" src="./assets/balls/Fleche.glb"></a-asset-item>
+            <a-asset-item id="badmintonGLB" src="./assets/balls/Badminton.glb"></a-asset-item>
+            <a-asset-item id="basketballGLB" src="./assets/balls/Basketball.glb"></a-asset-item>
+            <a-asset-item id="footballGLB" src="./assets/balls/Football.glb"></a-asset-item>
+            <a-asset-item id="golfGLB" src="./assets/balls/Golf.glb"></a-asset-item>
+            <a-asset-item id="handballGLB" src="./assets/balls/Handball.glb"></a-asset-item>
+            <a-asset-item id="pingGLBg" src="./assets/balls/Ping pong.glb"></a-asset-item>
+            <a-asset-item id="poidsGLB" src="./assets/balls/Poids.glb"></a-asset-item>
+            <a-asset-item id="tennisBallGLB" src="./assets/balls/Tennis_Ball.glb"></a-asset-item>
+            <a-asset-item id="volleyballGLB" src="./assets/balls/Volleyball.glb"></a-asset-item>
+          </a-assets>
+
+          <a-camera id="preview-camera">
+            <a-entity id="tutos" position="0 0 -1.0">
+
+              <a-entity scale="1.2 1.2 1.2" position="0.32 0.2 0" visible="true" onclick="document.requestCameraAndOrientation()">
+                <a-entity position="0 0.9 -2" scale="1 1 1">
+                    <a-entity scale="0.2 0.2 0.2" rotation="10 -25 0" position="0 -1 2" gltf-model="#ring" gltf-material-linear="ringBronzeSurfaceColorPNG"></a-entity>
+                    <a-plane wave material="src:#waveBronzeImage; transparent: true; opacity:0.0;"scale="0.3 0.3 0.3" position="0 -1 2"></a-plane>
+                </a-entity>
+              </a-entity>
+
+              <a-entity scale="1.2 1.2 1.2" position="5 0.2 0" visible="true">
+                <a-entity position="0 0.9 -2" scale="1 1 1">
+                    <a-entity ammo-target="points:0;" scale="0.3 0.3 0.3" rotation="10 -15 0" position="0 -1 2" gltf-model="#ring" gltf-material-linear="ringBronzeSurfaceColorPNG"></a-entity>
+                    <a-plane wave material="src:#waveBronzeImage; transparent: true; opacity:0.0; depthWrite:false;"scale="0.3 0.3 0.3" position="0 -1 2"></a-plane>
+                </a-entity>
+
+                <a-plane
+                  id="point-intro-1"
+                  scale="0.15 0.15 0.15"
+                  rotation="0 0 0"
+                  position="0 -0.14 0.5"
+                  material="src: #points10PNG; transparent: true; opacity: 0; depthWrite:false;"
+                  animation="property: opacity; to: 1; dur: 900; dir: alternate; loop: true;"
+                  >
+                </a-plane>
+
+                <a-plane
+                  id="hand-hint"
+                  scale="0.1 0.1 0.15"
+                  rotation="0 0 60"
+                  position="0.08 -0.35 0.5"
+                  _animation="property: scale; to: 0.15 0.15 0.15; dur: 900; easing: easeOutCubic; loop: true; dir: alternate;"
+                  ornement="name: hand_placeholder">
+                </a-plane>
+
+                <a-plane
+                  id="touch-point"
+                  scale="0.03 0.03 0"
+                  position="0 -0.36 0.5"
+                  animation="property: scale; to: 0.05 0.05 0; dur: 1000; easing: easeInOutSine; loop: true; dir: alternate;"
+                  ornement="name: touchpoint">
+                </a-plane>
+
+                <a-entity id="preview-canon" scale="0.3 0.3 0.3" position="0 -0.4 0.4" canon autoshoot>
+                  <a-entity scale="2 2 2" speed="mass:1000; " trailradius="0.015" sound-on-shot="id:shotgunSound;">
+                    <a-entity rotation="90 0 0" gltf-model="#badmintonGLB">
+                    </a-entity>
+                  </a-entity>
+                  <a-entity scale="0 0 0" speed="mass:1000; " trailradius="0.05" sound-on-shot="id:shotgunSound;">
+                    <a-entity gltf-model="#basketballGLB">
+                    </a-entity>
+                  </a-entity>
+                  <a-entity scale="0 0 0" speed="mass:1000; " trailradius="0.05" sound-on-shot="id:shotgunSound;">
+                    <a-entity gltf-model="#footballGLB">
+                    </a-entity>
+                  </a-entity>
+                  <a-entity scale="0 0 0" speed="mass:1000; " trailradius="0.0125" sound-on-shot="id:shotgunSound;">
+                    <a-entity gltf-model="#golfGLB">
+                    </a-entity>
+                  </a-entity>
+                  <a-entity scale="0 0 0" speed="mass:1000; " trailradius="0.05" sound-on-shot="id:shotgunSound;">
+                    <a-entity gltf-model="#handballGLB">
+                    </a-entity>
+                  </a-entity>
+                  <a-entity scale="0 0 0" speed="mass:1000; " trailradius="0.03" sound-on-shot="id:shotgunSound;">
+                    <a-entity gltf-model="#poidsGLB">
+                    </a-entity>
+                  </a-entity>
+                  <a-entity scale="0 0 0" speed="mass:1000; " trailradius="0.02" sound-on-shot="id:shotgunSound;">
+                    <a-entity gltf-model="#tennisBallGLB">
+                    </a-entity>
+                  </a-entity>
+                  <a-entity scale="0 0 0" speed="mass:1000; " trailradius="0.05" sound-on-shot="id:shotgunSound;">
+                    <a-entity gltf-model="#volleyballGLB">
+                    </a-entity>
+                  </a-entity>
+                  <a-entity scale="0 0 0" speed="mass:1000; " trailradius="0.0125" sound-on-shot="id:shotgunSound;">
+                    <a-entity scale="0.1 0.1 0.1" rotation="90 0 0" gltf-model="#flecheGLB">
+                    </a-entity>
+                  </a-entity>
+                </a-entity>
+
+                <a-plane
+                  id="floor"
+                  position="0 -2 0"
+                  width="1000" height="1000"
+                  rotation="-90 0 0"
+                  material="shader: shadow; transparent: true; opacity: 0.0"
+                  shadow
+              ></a-plane>
+
+              </a-entity>
+
+              <a-entity scale="1.5 1.5 1.5" position="10 0 0" visible="false" levitating="height: 0.02; frequency: 3.0">
+                <a-entity
+                  id="ring-2"
+                  position="-1.5 0.1 0"
+                  scale="0.14 0.14 0.14">
+                    <a-entity gltf-model="#ring" gltf-material-linear="ringArgentSurfaceColorPNG"></a-entity>
+                  </a-plane>
+                  <a-plane
+                  material="src: #points20PNG; transparent: true;"
+                  >
+                </a-plane>
+                </a-entity>
+
+
+                <a-entity
+                  id="ring-3"
+                  position="1.5 0.3 0"
+                  scale="0.08 0.08 0.08">
+                  <a-entity gltf-model="#ring" gltf-material-linear="ringGoldSurfaceColorPNG"></a-entity>
+                  </a-plane>
+                  <a-plane
+                  material="src: #points30PNG; transparent: true;"
+                  >
+                </a-plane>
+                </a-entity>
+
+                <a-entity
+                  id="ring-4"
+                  position="1.5 -0.2 0"
+                  scale="0.2 0.2 0.2">
+                  <a-entity gltf-model="#ring" gltf-material-linear="ringBronzeSurfaceColorPNG"></a-entity>
+                  </a-plane>
+                  <a-plane
+                  material="src: #points10PNG; transparent: true;"
+                  >
+                </a-plane>
+                </a-entity>
+              </a-entity>
+
+
+              <a-entity position="15 0 0" visible="true">
+                <a-entity
+                  id="ring-5"
+                  position="0 0.15 0"
+                  scale="0.3 0.3 0.3">
+                    <a-entity gltf-model="#ring" gltf-material-linear="ringSpecialSurfaceColorPNG"></a-entity>
+                    <a-plane
+                      material="src:#waveWhiteImage; transparent: true; opacity:1.0;"
+                      scale="2.1 2.1 2.1"
+                      position="0 0 0"
+                      bonus-circle-anim
+                    ></a-plane>
+                </a-entity>
+              </a-entity>
+
+              <a-entity rotation="25 0 0" scale="1.3 1.3 1.3" visible="true">
+                <a-entity id="instore-wheel" rotation-balance-y>
+                  <a-entity id="ball-0" rotation="0 0 0">
+                    <a-entity position="0 0 -0.3" scale="0.25 0.25 0.25">
+                      <a-entity scale="2 2 2">
+                        <a-entity rotation="90 0 0" gltf-model="#basketballGLB"></a-entity>
+                      </a-entity>
+                    </a-entity>
+                  </a-entity>
+                  <a-entity id="ball-1" rotation="0 -40 0">
+                    <a-entity position="0 0 -0.3" scale="0.25 0.25 0.25">
+                      <a-entity scale="2 2 2">
+                        <a-entity scale="0.1 0.1 0.1" gltf-model="#flecheGLB"></a-entity>
+                      </a-entity>
+                    </a-entity>
+                  </a-entity>
+                  <a-entity id="ball-2" rotation="0 -80 0">
+                    <a-entity position="0 0 -0.3" scale="0.25 0.25 0.25">
+                      <a-entity scale="2 2 2">
+                        <a-entity gltf-model="#footballGLB"></a-entity>
+                      </a-entity>
+                    </a-entity>
+                  </a-entity>
+                  <a-entity id="ball-3" rotation="0 -120 0">
+                    <a-entity position="0 0 -0.3" scale="0.25 0.25 0.25">
+                      <a-entity scale="2 2 2">
+                        <a-entity gltf-model="#golfGLB"></a-entity>
+                      </a-entity>
+                    </a-entity>
+                  </a-entity>
+                  <a-entity id="ball-4" rotation="0 -160 0">
+                    <a-entity position="0 0 -0.3" scale="0.25 0.25 0.25">
+                      <a-entity scale="2 2 2">
+                        <a-entity gltf-model="#handballGLB"></a-entity>
+                      </a-entity>
+                    </a-entity>
+                  </a-entity>
+                  <a-entity id="ball-5" rotation="0 -200 0">
+                    <a-entity position="0 0 -0.3" scale="0.25 0.25 0.25">
+                      <a-entity scale="2 2 2">
+                        <a-entity gltf-model="#poidsGLB"></a-entity>
+                      </a-entity>
+                    </a-entity>
+                  </a-entity>
+                  <a-entity id="ball-6" store-only rotation="0 -240 0">
+                    <a-entity position="0 0 -0.3" scale="0.25 0.25 0.25">
+                      <a-entity scale="2 2 2">
+                        <a-entity gltf-model="#tennisBallGLB"></a-entity>
+                      </a-entity>
+                    </a-entity>
+                  </a-entity>
+                  <a-entity id="ball-7" store-only rotation="0 -280 0">
+                    <a-entity position="0 0 -0.3" scale="0.25 0.25 0.25">
+                      <a-entity scale="2 2 2">
+                        <a-entity gltf-model="#volleyballGLB"></a-entity>
+                      </a-entity>
+                    </a-entity>
+                  </a-entity>
+                  <a-entity id="ball-8" store-only rotation="0 -320 0">
+                    <a-entity position="0 0 -0.3" scale="0.25 0.25 0.25">
+                      <a-entity scale="2 2 2">
+                        <a-entity rotation="90 0 0" gltf-model="#badmintonGLB"></a-entity>
+                      </a-entity>
+                    </a-entity>
+                  </a-entity>
+                </a-entity>
+                <a-plane 
+                  id="weight" 
+                  position="0 -0.15 0.5" 
+                  rotation="-25 0 0" 
+                  scale="0.2 0.2 0.2" 
+                  ornement="name: weight-0_placeholder"></a-plane>
+              </a-entity>
+            </a-entity>
+
+          </a-camera>
+        </a-scene>
+      </div>
+      <div id="instructions-wrapper" style="display: none;">
+          <img id="imgTuto1" src="assets/intro_1_hint_mobile.png" style="position: absolute; width : 400px; max-width:80%; left: 10%; transform:translate(0%, -90%);">
+          <div id="bubble-info-wrapper">
+              <div id="step-wrapper">
+                  <p id="step-text">STEP 1/5 :</p>
+              </div>
+              <div id="bubble">
+                  <p id="bubble-text">¡Hola! Bienvenido a Carresports, ¿comenzamos una experiencia única? <b>Para poder jugar Carresports necesita acceso a tu cámara</b></p>
+                  <button id="next-button">SIGUIENTE</button>
+                  <img id="mascotte" src="./assets/mascotte_tutorial.png">
+              </div>
+          </div>
+          <button id="skip-button">SALTAR TUTORIAL</button>
+      </div>
+    </div>
+    
+    <a-scene
+      style="position: absolute; width: 100%; height: 100%; top:0; left: 0;"
+      id="scene"
+      embedded
+      device-orientation-permission-ui="enabled: true; denyButtonText: Denegar; allowButtonText: Permitir;cancelButtonText: Cancelar; deviceMotionMessage: Este juego requiere el acceso a los sensores de movimiento de tu dispositivo;"
+      visible="false"
+      renderer="webgl2: true;"
+      vr-mode-ui="enabled: false"
+      onclick="document.shoot()">
+
+      <a-assets timeout="0">
+        <audio id="hitSound" src="assets/ANNEAU_APPEAR_AND_OPEN.mp3"></audio>
+        <audio id="countdownSound" src="assets/COUNTDOWN.mp3"></audio>
+        <audio id="beforeEndSound" src="assets/END_COUNTDOWN.mp3"></audio>
+        <audio id="musicSound" src="assets/MUSIQUE_GAME.mp3"></audio>
+        <audio id="shotSound" src="assets/SWOOSH_TIR.mp3"></audio>
+        <audio id="endSound" src="assets/WHISTLE_END_GAME.mp3"></audio>
+
+        <!-- Ring Assets -->
+        <img id="ringArgentSurfaceColorPNG" src="./assets/ring_textures/RING_ARGENTSurface_Color.png">
+        <img id="ringBronzeSurfaceColorPNG" src="./assets/ring_textures/RING_BRONZESurface_Color.png">
+        <img id="ringGoldSurfaceColorPNG" src="./assets/ring_textures/RING_GOLDSurface_Color.png">
+        <img id="ringSpecialSurfaceColorPNG" src="./assets/ring_textures/RING_SPECIALSurface_Color.png">
+        <a-asset-item id="ring" src="./assets/RING.glb"></a-asset-item>
+
+        <img id="waveBronzeImage" src="./assets/wave_bronze.png">
+        <img id="waveSilverImage" src="./assets/wave_gray.png">
+        <img id="waveGoldImage" src="./assets/wave_gold.png">
+        <img id="waveSpecialImage" src="./assets/wave_white.png">
+        <img id="crossBoldFile" src="./assets/bold-croix.png">
+        <img id="touchPointFile" src="./assets/touchpoint.png">
+
+        <!-- Ball Assets source -->
+        <a-asset-item id="arcGLB" src="./assets/balls/Arc.glb"></a-asset-item>
+        <a-asset-item id="flecheGLB" src="./assets/balls/Fleche.glb"></a-asset-item>
+
+        <a-asset-item id="badmintonGLB" src="./assets/balls/Badminton.glb"></a-asset-item>
+        <a-asset-item id="basketballGLB" src="./assets/balls/Basketball.glb"></a-asset-item>
+        <a-asset-item id="footballGLB" src="./assets/balls/Football.glb"></a-asset-item>
+        <a-asset-item id="golfGLB" src="./assets/balls/Golf.glb"></a-asset-item>
+        <a-asset-item id="handballGLB" src="./assets/balls/Handball.glb"></a-asset-item>
+        <a-asset-item id="pingGLBg" src="./assets/balls/Ping pong.glb"></a-asset-item>
+        <a-asset-item id="poidsGLB" src="./assets/balls/Poids.glb"></a-asset-item>
+        <a-asset-item id="tennisBallGLB" src="./assets/balls/Tennis_Ball.glb"></a-asset-item>
+        <a-asset-item id="volleyballGLB" src="./assets/balls/Volleyball.glb"></a-asset-item>
+      </a-assets>
+      
+      <a-camera
+        id="camera"
+        look-controls="touchEnabled: false"
+        position="0 1.5 0">
+        <a-entity id="game-canon" position="0 -0.4 -1.0">
+          <a-entity scale="2 2 2" trailradius="0.1" speed="mass:450; radius:0.15;" sound-on-shot="id:shotgunSound;">
+            <a-entity gltf-model="#basketballGLB"></a-entity>
+          </a-entity>
+          <a-entity scale="0 0 0" trailradius="0.025" speed="mass:300; radius:0.00;" sound-on-shot="id:shotgunSound;">
+            <a-entity scale="0.1 0.1 0.1" rotation="90 0 0" gltf-model="#flecheGLB"></a-entity>
+          </a-entity>
+          <a-entity scale="0 0 0" trailradius="0.1" speed="mass:520; radius:0.15;" sound-on-shot="id:shotgunSound;">
+            <a-entity gltf-model="#footballGLB"></a-entity>
+          </a-entity>
+          <a-entity scale="0 0 0" trailradius="0.025" speed="mass:380; radius:0.00;" sound-on-shot="id:shotgunSound;">
+            <a-entity gltf-model="#golfGLB"></a-entity>
+          </a-entity>
+          <a-entity scale="0 0 0" trailradius="0.1" speed="mass:500; radius:0.15;" sound-on-shot="id:shotgunSound;">
+            <a-entity gltf-model="#handballGLB"></a-entity>
+          </a-entity>
+          <a-entity scale="0 0 0" trailradius="0.06" speed="mass:900; radius:0.15;" sound-on-shot="id:shotgunSound;">
+            <a-entity gltf-model="#poidsGLB"></a-entity>
+          </a-entity>
+          <a-entity scale="0 0 0" trailradius="0.04" store-only speed="mass:430; radius:0.02;" sound-on-shot="id:shotgunSound;">
+            <a-entity gltf-model="#tennisBallGLB"></a-entity>
+          </a-entity>
+          <a-entity scale="0 0 0" trailradius="0.1" store-only speed="mass:480; radius:0.15;" sound-on-shot="id:shotgunSound;">
+            <a-entity gltf-model="#volleyballGLB"></a-entity>
+          </a-entity>
+          <a-entity scale="0 0 0" trailradius="0.03" store-only speed="mass:340; radius:0.01;" sound-on-shot="id:shotgunSound;">
+            <a-entity rotation="90 0 0" gltf-model="#badmintonGLB"></a-entity>
+          </a-entity>
+        </a-entity>
+      </a-camera>
+
+      <a-entity id="rings" ring-spawner position="0 1.5 0" rotation="0 -40 0">
+
+      </a-entity>
+
+      <a-entity
+          light="type: directional;
+              castShadow: true;
+              intensity: 1.0;
+
+              shadowCameraTop: 15;
+              shadowCameraLeft: -15;
+              shadowCameraBottom: -15;
+              shadowCameraRight: 15;
+
+              shadowCameraFar : 15;
+              shadowCameraNear : -15;
+
+              shadowMapWidth: 1024;
+              shadowMapHeight: 1024;
+              shadowCameraVisible: false;"
+          position="0 2 0">
+      </a-entity>
+
+      <a-plane
+        id="floor"
+        position="0 0 0"
+        width="1000" height="1000"
+        rotation="-90 0 0"
+        material="shader: shadow; transparent: true; opacity: 1.0"
+        shadow
+      ></a-plane>
+
+      <a-light type="ambient" intensity="1.0"></a-light>
+
+    </a-scene>
+
+    <div id="scene2d" style="position: absolute; width:100%; height:100%; pointer-events: none; display: none;">
+      <div id="countdown-text" style="position: absolute; left:50%; top: 50%; transform: translate(-50%, -100%); font-size: 20vw; color: white;">
+      </div>
+
+      <div style="position: absolute; width:80%; left:10%; height : 80px; top : 2%; border-radius: 20px; background: rgba(0, 0, 0, 0.3); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);">
+        <div id="timerdiv" style="position: absolute; width:40%; left:5%; height : 90%; top: 5%; font-size: 8vw; color: white; display: flex; flex-direction: column; justify-content: center; text-align: center;">
+          00:40s
+        </div>
+
+        <div id="timerchange" style="position: absolute; width:40%; left:5%; height : 40px; bottom: 100px; font-size: 8vw; color: gold; display: flex; flex-direction: column; justify-content: center; text-align: center;">
+        </div>
+
+        <img class="ring-ui" src="./assets/ring_ui.png">
+        <div id="scorediv" style="position: absolute; width:40%; right:5%; height : 90%; top: 5%; font-size: 8vw; color: white; display: flex; flex-direction: column; justify-content: center; text-align: center;">
+          0 pts
+        </div>
+
+        <div id="scorechange" style="position: absolute; width:40%; right:5%; height : 40px; bottom: 100px; font-size: 8vw; color: gold; display: flex; flex-direction: column; justify-content: center; text-align: center;">
+        </div>
+
+      </div>
+    </div>
+  </body>
+</html>
